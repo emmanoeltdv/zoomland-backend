@@ -1,0 +1,39 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  power     Float    @default(0)
+  league    String   @default("Bronze I")
+  wallet    Wallet?
+  createdAt DateTime @default(now())
+}
+
+model Wallet {
+  id     String @id @default(uuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @unique
+
+  zmc   Float @default(0)
+  btc   Float @default(0)
+  trx   Float @default(0)
+  doge  Float @default(0)
+  usdt  Float @default(0)
+  sol   Float @default(0)
+}
+
+model MiningLog {
+  id        String   @id @default(uuid())
+  userId    String
+  amount    Float
+  createdAt DateTime @default(now())
+}
