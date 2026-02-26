@@ -10,22 +10,21 @@ app.use(express.json());
 const authRoutes = require('./controllers/authController');
 const userRoutes = require('./controllers/userController');
 
+// ✅ Rotas com /api (o que seu front e o Railway provavelmente estão chamando)
+app.use('/api/auth', authRoutes);
+app.use('/api/user', userRoutes);
+
+// ✅ (Opcional) manter compatibilidade com rotas antigas sem /api
 app.use('/auth', authRoutes);
 app.use('/user', userRoutes);
 
-// Rota teste (importante para Railway)
-app.get('/', (req, res) => {
-  res.send('✅ ZoomLand Backend ONLINE');
-});
+// ✅ Rotas de teste/health pro Railway
+app.get('/', (req, res) => res.status(200).send('✅ Zoomland Backend ONLINE'));
+app.get('/health', (req, res) => res.status(200).send('OK'));
+app.get('/api', (req, res) => res.status(200).send('OK'));
+app.get('/api/health', (req, res) => res.status(200).send('OK'));
 
-// Health check (Railway usa isso às vezes)
-app.get('/health', (req, res) => {
-  res.send('OK');
-});
-
-// Porta correta Railway / produção
 const PORT = process.env.PORT || 3001;
-
 app.listen(PORT, () => {
-  console.log('🚀 ZoomLand Backend rodando na porta', PORT);
+  console.log('🚀 Zoomland Backend rodando na porta', PORT);
 });
