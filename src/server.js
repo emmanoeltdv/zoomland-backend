@@ -9,7 +9,7 @@ dotenv.config();
 
 const app = express();
 
-// CORS liberado para frontend
+// CORS liberado
 app.use(cors({
   origin: "*",
   credentials: true
@@ -17,13 +17,12 @@ app.use(cors({
 
 app.use(express.json());
 
-// ===== CONEXÃO MONGODB =====
+/* ===== CONEXÃO MONGODB ===== */
 mongoose.connect(process.env.DATABASE_URL)
 .then(() => console.log("✅ MongoDB conectado"))
-.catch(err => console.log("❌ Erro MongoDB:", err));
+.catch(err => console.log("❌ MongoDB erro:", err));
 
-
-// ===== MODEL USER =====
+/* ===== MODEL USER ===== */
 const UserSchema = new mongoose.Schema({
   email: String,
   password: String
@@ -31,8 +30,7 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model("User", UserSchema);
 
-
-// ===== CADASTRO =====
+/* ===== REGISTER ===== */
 app.post("/register", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -48,13 +46,12 @@ app.post("/register", async (req, res) => {
 
     res.json({ message: "Usuário criado" });
 
-  } catch (error) {
-    res.status(500).json(error);
+  } catch (err) {
+    res.status(500).json(err);
   }
 });
 
-
-// ===== LOGIN =====
+/* ===== LOGIN ===== */
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -62,36 +59,34 @@ app.post("/login", async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user)
-      return res.status(400).json({ message: "Usuário não existe" });
+      return res.status(400).json({ msg: "Usuário não existe" });
 
     const valid = await bcrypt.compare(password, user.password);
 
     if (!valid)
-      return res.status(400).json({ message: "Senha inválida" });
+      return res.status(400).json({ msg: "Senha errada" });
 
     const token = jwt.sign(
       { id: user._id },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || "segredo",
       { expiresIn: "7d" }
     );
 
     res.json({ token });
 
-  } catch (error) {
-    res.status(500).json(error);
+  } catch (err) {
+    res.status(500).json(err);
   }
 });
 
-
-// ===== TESTE API =====
+/* ===== TESTE API ===== */
 app.get("/", (req, res) => {
-  res.send("🚀 ZoomLand API Online");
+  res.send("🚀 Backend ZoomLand funcionando");
 });
 
-
-// ===== PORT =====
+/* ===== START SERVER ===== */
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () =>
-  console.log("Servidor rodando na porta", PORT)
+  console.log("🔥 Servidor rodando na porta " + PORT)
 );
